@@ -1,7 +1,11 @@
 ---
 title: "Project 1"
 author: "Allison Shaffer"
-format: html
+description: "Project 1 for Biostats 776"
+format: 
+  html:
+    code-overflow: wrap
+    code-line-numbers: true
 ---
 
 
@@ -33,7 +37,7 @@ colSums(is.na(chocolate))
 
 ```
 
-Part 2
+Part 1
 ```{r}
 #1
 ggplot(chocolate, aes(x = rating)) +
@@ -192,6 +196,8 @@ chocolate %>%
   count(country_of_bean_origin, sort = TRUE) %>%
   View()
 
+saveRDS(chocolate, "chocolate.rds")
+
 #2 
 chocolate <- chocolate %>%
   group_by(country_of_bean_origin) %>%
@@ -211,6 +217,8 @@ ggplot(chocolate, aes(x = continent, y = rating)) +
     x = "Continent",
     y = "Rating"
   )
+
+chocolate <- readRDS("chocolate.rds")
 ```
 
 
@@ -368,7 +376,8 @@ ggplot(chocolate, aes(
 
 ```
 
-I graphed annual breakdowns of cocoa percentage related to chocolate rating as dot plots, including each dot representing the continent of the company location. Overall, a wild amount of variables to try to include in one graphic. 
+I graphed annual breakdowns of cocoa percentage related to chocolate rating as dot plots, including each dot representing the continent of the company location. Overall, a wild amount of variables to try to include in one graphic.
+
 1. I made the title useless as it doesn't give the person viewing the graph any information on what they're looking at. 
 2. The x-axis label is only 'percentage', so the viewer wouldn't know what the percentage is of. Since the graph is so busy, the x axis percentages are also illegible.
 3. I removed the y axis label. 
@@ -400,13 +409,19 @@ chocolate %>%
 ```
 
 
-1 I removed the varying color scale, the different colors didn't add any additional information and were distracting
-2 I made the color or the plots steel blue and slightly transparent for visual appeal. I
-3 I added a title, which helps a viewer more easily understand what this graph is showing.
-4 I added x and y axis labels that had more meaning. 
-5 I tilted and aligned the year labels along the x axis so it doesn't appear as crowded
-6 I made the theme minimal to remove the appearance (removed gray background and replaced with white) 
-7 I also removed the legend as they're all one color now. 
+
+1. I removed the varying color scale, the different colors didn't add any additional information and were distracting
+2. I made the color or the plots steel blue and slightly transparent for visual appeal. I
+3. I added a title, which helps a viewer more easily understand what this graph is showing.
+4. I added x and y axis labels that had more meaning. 
+5. I tilted and aligned the year labels along the x axis so it doesn't appear as crowded
+6. I made the theme minimal to remove the appearance (removed gray background and replaced with white) 
+7. I also removed the legend as they're all one color now. 
 
 
-Of note, I ran my analysis and my graphs on my cleaned data (from part 2), while it seems perhaps yours is the raw data, having not removed the 'blends'. 
+In completing this assignment, I used data sourced from the TidyTuesday Chocolate Bar Ratings dataset and Gapminder(via the gapminder package). I used ChatGPT (Open AI) to help to write, troubleshoot, and understand code. 
+
+```{r}
+options(width = 120)
+sessioninfo::session_info()
+```
