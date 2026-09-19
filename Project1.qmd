@@ -1,0 +1,30 @@
+---
+title: "Project1"
+format: html
+---
+
+
+```{r}
+
+library("here")
+library("tidyverse")
+
+if (!dir.exists(here("data"))) {
+    dir.create(here("data"))
+}
+
+
+if (!file.exists(here("data", "chocolate.RDS"))) {
+    url_csv <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2022/2022-01-18/chocolate.csv"
+    chocolate <- readr::read_csv(url_csv)
+
+    # save the file to RDS objects
+    saveRDS(chocolate, file = here("data", "chocolate.RDS"))
+}
+
+
+chocolate <- readRDS(here("data", "chocolate.RDS"))
+as_tibble(chocolate)
+
+
+glimpse(chocolate)
