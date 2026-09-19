@@ -5,6 +5,7 @@ format: html
 
 
 ```{r}
+rm(list = ls())
 
 library("here")
 library("tidyverse")
@@ -28,3 +29,241 @@ as_tibble(chocolate)
 
 
 glimpse(chocolate)
+
+
+colSums(is.na(chocolate))
+
+```
+
+
+```{r}
+#Part 2
+#1
+ggplot(chocolate, aes(x = rating)) +
+  geom_histogram(bins = 25) +
+  labs(
+    title = "Distribution of Rating Scores",
+    x = "Rating Score",
+    y = "Count"
+  )
+
+  #Changing the number of bins changes the number of bars in the histogram (including the bars without any data). I chose 25 bins because it more clearly displays the breakdown of ratings between 3-4, where a majority of the observations fall. The 10 bin option was also appealing if we don't need to have as close of a look at the ratings. I think the option really depends on what you're trying to demonstrate with the graph. 
+
+```
+
+```{r}
+#2
+chocolate %>%
+  count(country_of_bean_origin, sort = TRUE)
+```
+
+```{r}
+#3
+chocolate %>%
+  filter(country_of_bean_origin == "Ecuador") %>%
+  summarise(
+    mean = mean(rating, na.rm = TRUE),
+    sd = sd(rating, na.rm = TRUE),
+    total = n()
+  )
+```
+
+```{r}
+#4
+chocolate %>%
+  filter(country_of_bean_origin == "Ecuador") %>%
+  group_by(company_location) %>%
+  summarise(
+    mean_rating = mean(rating, na.rm = TRUE)
+  ) %>%
+  arrange(desc(mean_rating))
+
+#Australia
+```
+
+
+```{r}
+#5
+chocolate %>%
+  group_by(company_location) %>%
+  summarise(
+    mean_rating = mean(rating, na.rm = TRUE)
+  ) %>%
+  arrange(desc(mean_rating))
+
+#Chile 
+```
+
+```{r}
+
+#6
+chocolate %>%
+  group_by(country_of_bean_origin) %>%
+  summarise(
+    total = n(),
+    mean_rating = mean(rating, na.rm = TRUE)
+  ) %>%
+  filter(total >= 10) %>%
+  arrange(desc(mean_rating)) %>%
+  slice_head(n = 3)
+
+#Solomon Islands, Congo, Cuba 
+
+```
+
+```{r}
+#7
+chocolate_filtered <- chocolate %>%
+  group_by(country_of_bean_origin) %>%
+  filter(n() >= 50) %>%
+  ungroup()
+
+chocolate_filtered <- chocolate_filtered %>%
+  mutate(
+    cocoa_percent_num = as.numeric(substr(cocoa_percent, 1, 2)),
+    cocoa_group = case_when(
+      cocoa_percent_num < 60 ~ "<60%",
+      cocoa_percent_num >= 60 & cocoa_percent_num < 70 ~ "60-<70%",
+      cocoa_percent_num >= 70 & cocoa_percent_num < 90 ~ "70-<90%",
+      cocoa_percent_num >= 90 ~ ">=90%"
+    )
+  )
+
+chocolate_filtered <- chocolate_filtered %>%
+  mutate(
+    cocoa_group = fct_relevel(
+      cocoa_group,
+      "<60%",
+      "60-<70%",
+      "70-<90%",
+      ">=90%"
+    )
+  )
+
+ggplot(chocolate_filtered, aes(x = cocoa_group, y = rating)) +
+  geom_boxplot() +
+  facet_wrap(~ country_of_bean_origin) +
+  labs(
+    title = "Chocolate Ratings by Cocoa Percentage and Country",
+    x = "Chocolate Percentage",
+    y = "Rating"
+  )
+
+#Based on a visual review of the plots, the chocolates with cocoa percentages between 60 & 70 and 70 & 90 seem to have better ratings, but there are differences between country of origin  
+
+```
+
+```{r}
+#Part 2
+library(tidyverse)
+library(gapminder)
+gapminder
+
+
+#1
+chocolate <- chocolate %>%
+  left_join(
+    gapminder %>%
+      select(country, continent) %>%
+      distinct(),
+    by = c("country_of_bean_origin" = "country")
+  )
+
+sum(is.na(chocolate$continent))
+
+chocolate %>%
+  filter(is.na(continent)) %>%
+  count(country_of_bean_origin, sort = TRUE) %>%
+  View()
+
+chocolate <- chocolate %>%
+  mutate(
+    continent = case_when(
+      country_of_bean_origin %in% c("Congo", "Ivory Coast", "Sao Tome", "Sao Tome & Principe", "DR Congo", "Principe") ~ "Africa",
+      country_of_bean_origin %in% c("Belize", "Trinidad", "U.S.A.", "Grenada", "St. Lucia", "St.Vincent-Grenadines", "Martinique", "Suriname", "Tobago") ~ "Americas",
+      country_of_bean_origin %in% c("Burma", "Sulawesi", "Sumatra") ~ "Asia",
+      country_of_bean_origin %in% c("Fiji", "Papua New Guinea", "Vanuatu", "Solomon Islands", "Samoa") ~ "Oceania",
+      TRUE ~ continent
+    )
+  )
+
+
+sum(is.na(chocolate$continent))
+
+chocolate %>%
+  filter(is.na(continent)) %>%
+  count(country_of_bean_origin, sort = TRUE) %>%
+  View()
+
+#2 
+chocolate <- chocolate %>%
+  group_by(country_of_bean_origin) %>%
+  filter(n() >= 10) %>%
+  ungroup()
+
+#3
+chocolate <- chocolate %>%
+  filter(country_of_bean_origin != "Blend")
+
+
+#4
+chocolate <- chocolate %>%
+  group_by(country_of_bean_origin) %>%
+  filter(n() >= 10) %>%
+  ungroup()
+
+```
+
+
+
+```{r}
+#Part 3 
+
+#1
+chocolate <- chocolate %>%
+  mutate(
+    beans = if_else(str_detect(ingredients, "B"), 1, 0),
+    sugar = if_else(str_detect(ingredients, "S") & !str_detect(ingredients, "S\\*|Sa"), 1, 0),
+    cocoa_butter = if_else(str_detect(ingredients, "C"), 1, 0),
+    vanilla = if_else(str_detect(ingredients, "V"), 1, 0),
+    lecithin = if_else(str_detect(ingredients, "L"), 1, 0),
+    salt = if_else(str_detect(ingredients, "Sa"), 1, 0)
+  )
+
+#2
+chocolate <- chocolate %>%
+  mutate(
+    char_cocoa = if_else(str_detect(most_memorable_characteristics, "cocoa"), 1, 0),
+    char_sweet = if_else(str_detect(most_memorable_characteristics, "sweet"), 1, 0),
+    char_nutty = if_else(str_detect(most_memorable_characteristics, "nutty"), 1, 0),
+    char_creamy = if_else(str_detect(most_memorable_characteristics, "creamy"), 1, 0),
+    char_roasty = if_else(str_detect(most_memorable_characteristics, "roasty"), 1, 0),
+    char_earthy = if_else(str_detect(most_memorable_characteristics, "earthy"), 1, 0)
+  )
+
+ #3 
+
+ chocolate_yearly <- chocolate %>%
+  group_by(review_date) %>%
+  summarise(
+    beans = mean(beans, na.rm = TRUE),
+    sugar = mean(sugar, na.rm = TRUE),
+    cocoa_butter = mean(cocoa_butter, na.rm = TRUE),
+    vanilla = mean(vanilla, na.rm = TRUE),
+    lecithin = mean(lecithin, na.rm = TRUE),
+    salt = mean(salt, na.rm = TRUE),
+    char_cocoa = mean(char_cocoa, na.rm = TRUE),
+    char_sweet = mean(char_sweet, na.rm = TRUE),
+    char_nutty = mean(char_nutty, na.rm = TRUE),
+    char_creamy = mean(char_creamy, na.rm = TRUE),
+    char_roasty = mean(char_roasty, na.rm = TRUE),
+    char_earthy = mean(char_earthy, na.rm = TRUE)
+  )
+
+
+chocolate_yearly_long <- chocolate_yearly %>%
+  pivot_longer(
+    cols = -review_date,
+    names_to = "feature",
+    values_to = "mean_score"
+  )
