@@ -337,35 +337,45 @@ ggplot(chocolate_yearly_long,
 
 #Part 5 
 
-ggplot(chocolate, aes(x = cocoa_percent, y = rating, color = company_location)) +
-  geom_point(size = 5, alpha = 0.8) +
-  geom_smooth(method = "lm", linewidth = 3, se = TRUE) +
+ggplot(chocolate, aes(
+  x = cocoa_percent,
+  y = rating,
+  color = continent
+)) +
+  geom_point(size = 2.5, alpha = 0.6) +
+  geom_hline(yintercept = mean(chocolate$rating), linewidth = 1, color = "red") +
   facet_wrap(~ review_date) +
-  scale_color_manual(values = rainbow(length(unique(chocolate$company_location)))) +
   labs(
-    title = "THE ABSOLUTELY AMAZING SUPER IMPORTANT CHOCOLATE RATING PLOT!!!",
-    subtitle = "This visualization contains WAY too much information and is definitely not confusing at all!!!",
-    x = "COCOA PERCENTAGE OF CHOCOLATE",
-    y = "RATING SCORE",
-    caption = "Created by Allison Shaffer — The World's Most Questionable Data Visualization"
+    title = "Chocolate Rating",
+    x = "Percentage",
   ) +
+  scale_color_manual(
+    values = c(
+      "Africa" = "blue",
+      "Asia" = "lightblue",
+      "Americas" = "powderblue",
+      "Oceania" = "skyblue"
+    ) 
+  )+
+  theme_minimal() +
   theme(
-    panel.background = element_rect(fill = "yellow"),
-    plot.background = element_rect(fill = "pink"),
-    panel.grid.major = element_line(color = "red", linewidth = 2),
-    panel.grid.minor = element_line(color = "blue", linewidth = 1),
-    axis.text.x = element_text(angle = 90, size = 16, color = "purple"),
-    axis.text.y = element_text(size = 16, color = "orange"),
-    axis.title = element_text(size = 20, color = "green"),
-    plot.title = element_text(size = 24, color = "red", face = "bold"),
-    plot.subtitle = element_text(size = 16, color = "blue"),
-    strip.background = element_rect(fill = "limegreen"),
-    strip.text = element_text(size = 16, color = "white"),
-    legend.background = element_rect(fill = "cyan"),
-    legend.text = element_text(size = 14, color = "purple")
+    plot.title = element_text(size = 20, face = "bold"),
+    axis.title.y = element_blank(),
+    axis.text.x = element_text(size = 6),
+    axis.text.y = element_text(size = 6),
+    strip.text = element_text(size = 6, face = "bold")    
   )
+
 ```
 
+I graphed annual breakdowns of cocoa percentage related to chocolate rating as dot plots, including each dot representing the continent of the company location. Overall, a wild amount of variables to try to include in one graphic. 
+1. I made the title useless as it doesn't give the person viewing the graph any information on what they're looking at. 
+2. The x-axis label is only 'percentage', so the viewer wouldn't know what the percentage is of. Since the graph is so busy, the x axis percentages are also illegible.
+3. I removed the y axis label. 
+4. I removed the legned label, but left the variable name there (it doesn't add value as anyone could tell they're continents)
+5. I made all of the dots blue and most of them very close, so the color scale is useless. 
+6. I made some of the text very small.
+7. I added a red line at the overall mean chocolate rating, but gave no context to what it is. 
 
 ```{r}
 
@@ -387,18 +397,16 @@ chocolate %>%
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "none"
   )
-
-#1 I removed the varying color scale, the different colors didn't add any additional information and were distracting
-#2 I made the color or the plots steel blue and slightly transparent for visual appeal. I
-#3 I added a title, which helps a viewer more easily understand what this graph is showing.
-#4 I added x and y axis labels that had more meaning. 
-#5 I tilted and aligned the year labels along the x axis so it doesn't appear as crowded
-#6 I made the theme minimal to remove the appearance (removed gray background and replaced with white) 
-#7 I also removed the legend as they're all one color now. 
-
-
-
-
-#of note, i ran my analysis and my graphs on my cleaned data (from part 2), while it seems perhaps yours is the raw data, having not removed the 'blends'. 
-
 ```
+
+
+1 I removed the varying color scale, the different colors didn't add any additional information and were distracting
+2 I made the color or the plots steel blue and slightly transparent for visual appeal. I
+3 I added a title, which helps a viewer more easily understand what this graph is showing.
+4 I added x and y axis labels that had more meaning. 
+5 I tilted and aligned the year labels along the x axis so it doesn't appear as crowded
+6 I made the theme minimal to remove the appearance (removed gray background and replaced with white) 
+7 I also removed the legend as they're all one color now. 
+
+
+Of note, I ran my analysis and my graphs on my cleaned data (from part 2), while it seems perhaps yours is the raw data, having not removed the 'blends'. 
