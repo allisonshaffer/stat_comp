@@ -1,5 +1,6 @@
 ---
-title: "Project1"
+title: "Project 1"
+author: "Allison Shaffer"
 format: html
 ---
 
@@ -19,7 +20,6 @@ if (!file.exists(here("data", "chocolate.RDS"))) {
     url_csv <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2022/2022-01-18/chocolate.csv"
     chocolate <- readr::read_csv(url_csv)
 
-    # save the file to RDS objects
     saveRDS(chocolate, file = here("data", "chocolate.RDS"))
 }
 
@@ -27,17 +27,14 @@ if (!file.exists(here("data", "chocolate.RDS"))) {
 chocolate <- readRDS(here("data", "chocolate.RDS"))
 as_tibble(chocolate)
 
-
 glimpse(chocolate)
-
 
 colSums(is.na(chocolate))
 
 ```
 
-
+Part 2
 ```{r}
-#Part 2
 #1
 ggplot(chocolate, aes(x = rating)) +
   geom_histogram(bins = 25) +
@@ -46,15 +43,15 @@ ggplot(chocolate, aes(x = rating)) +
     x = "Rating Score",
     y = "Count"
   )
-
-  #Changing the number of bins changes the number of bars in the histogram (including the bars without any data). I chose 25 bins because it more clearly displays the breakdown of ratings between 3-4, where a majority of the observations fall. The 10 bin option was also appealing if we don't need to have as close of a look at the ratings. I think the option really depends on what you're trying to demonstrate with the graph. 
-
 ```
+
+Changing the number of bins changes the number of bars in the histogram (including the bars without any data). I chose 25 bins because it more clearly displays the breakdown of ratings between 3-4, where a majority of the observations fall. The 10 bin option was also appealing if we don't need to have as close of a look at the ratings. I think the option really depends on what you're trying to demonstrate with the graph. 
 
 ```{r}
 #2
 chocolate %>%
-  count(country_of_bean_origin, sort = TRUE)
+  count(country_of_bean_origin, sort = TRUE) %>%
+  print(n = Inf)
 ```
 
 ```{r}
@@ -78,9 +75,9 @@ chocolate %>%
   ) %>%
   arrange(desc(mean_rating))
 
-#Australia
 ```
 
+Australia is the company location making the best chocolates with beans from Ecuador, with a mean rating of 3.81. 
 
 ```{r}
 #5
@@ -91,11 +88,12 @@ chocolate %>%
   ) %>%
   arrange(desc(mean_rating))
 
-#Chile 
 ```
 
-```{r}
+Chile, UAE, and Poland are the top 3 countries for bean origin with the highest mean rating, with rating of 3.75, 3.4, and 3.38 (respectively).
 
+
+```{r}
 #6
 chocolate %>%
   group_by(country_of_bean_origin) %>%
@@ -107,9 +105,9 @@ chocolate %>%
   arrange(desc(mean_rating)) %>%
   slice_head(n = 3)
 
-#Solomon Islands, Congo, Cuba 
-
 ```
+
+Solomon Islands, Congo, and Cuba are the 3 countries with the highest mean rating, when only considering countries with 10 or greater reviews. 
 
 ```{r}
 #7
@@ -149,16 +147,15 @@ ggplot(chocolate_filtered, aes(x = cocoa_group, y = rating)) +
     y = "Rating"
   )
 
-#Based on a visual review of the plots, the chocolates with cocoa percentages between 60 & 70 and 70 & 90 seem to have better ratings, but there are differences between country of origin  
-
 ```
 
+Based on a visual review of the plots, the chocolates with cocoa percentages between 60 & 70 and 70 & 90 seem to have better ratings, but there are differences between country of origin 
+
+
+Part 2
 ```{r}
-#Part 2
 library(tidyverse)
 library(gapminder)
-gapminder
-
 
 #1
 chocolate <- chocolate %>%
@@ -207,18 +204,18 @@ chocolate <- chocolate %>%
 
 
 #4
-chocolate <- chocolate %>%
-  group_by(country_of_bean_origin) %>%
-  filter(n() >= 10) %>%
-  ungroup()
-
+ggplot(chocolate, aes(x = continent, y = rating)) +
+  geom_violin() +
+  labs(
+    title = "Chocolate Ratings by Continent",
+    x = "Continent",
+    y = "Rating"
+  )
 ```
 
 
-
+Part 3 
 ```{r}
-#Part 3 
-
 #1
 chocolate <- chocolate %>%
   mutate(
@@ -259,11 +256,149 @@ chocolate <- chocolate %>%
     char_roasty = mean(char_roasty, na.rm = TRUE),
     char_earthy = mean(char_earthy, na.rm = TRUE)
   )
+chocolate_yearly
 
-
+#4
 chocolate_yearly_long <- chocolate_yearly %>%
   pivot_longer(
     cols = -review_date,
     names_to = "feature",
     values_to = "mean_score"
   )
+chocolate_yearly_long
+
+```
+
+
+```{r}
+#Part 4
+chocolate_yearly_long <- chocolate_yearly_long %>%
+  mutate(
+    feature = factor(
+      feature,
+      levels = c(
+        "beans",
+        "sugar",
+        "char_cocoa",
+        "char_sweet",
+        "cocoa_butter",
+        "lecithin",
+        "char_nutty",
+        "char_creamy",
+        "vanilla",
+        "salt",
+        "char_roasty",
+        "char_earthy"
+      )
+    )
+  )
+
+ggplot(chocolate_yearly_long, 
+       aes(x = review_date, y = mean_score, color = feature)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) +
+  facet_wrap(~ feature) +
+  scale_color_manual(
+    values = c(
+      "beans" = "blue",
+      "sugar" = "blue",
+      "cocoa_butter" = "blue",
+      "vanilla" = "blue",
+      "lecithin" = "blue",
+      "salt" = "blue",
+      "char_cocoa" = "red",
+      "char_sweet" = "red",
+      "char_nutty" = "red",
+      "char_creamy" = "red",
+      "char_roasty" = "red",
+      "char_earthy" = "red"
+    )
+  ) +
+  labs(
+    title = "Chocolate Ingredients and Characteristics Over Time",
+    subtitle = "The majority of ingredients and characteristics were relatively stable over time. Lecithin, vanilla, and cocoa butter have notable\ndownward trends throughout the years.",
+    x = "Review Year",
+    y = "Mean Score",
+    caption = "Allison Shaffer"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 8),
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+```  
+
+
+```{r}
+
+#Part 5 
+
+ggplot(chocolate, aes(x = cocoa_percent, y = rating, color = company_location)) +
+  geom_point(size = 5, alpha = 0.8) +
+  geom_smooth(method = "lm", linewidth = 3, se = TRUE) +
+  facet_wrap(~ review_date) +
+  scale_color_manual(values = rainbow(length(unique(chocolate$company_location)))) +
+  labs(
+    title = "THE ABSOLUTELY AMAZING SUPER IMPORTANT CHOCOLATE RATING PLOT!!!",
+    subtitle = "This visualization contains WAY too much information and is definitely not confusing at all!!!",
+    x = "COCOA PERCENTAGE OF CHOCOLATE",
+    y = "RATING SCORE",
+    caption = "Created by Allison Shaffer — The World's Most Questionable Data Visualization"
+  ) +
+  theme(
+    panel.background = element_rect(fill = "yellow"),
+    plot.background = element_rect(fill = "pink"),
+    panel.grid.major = element_line(color = "red", linewidth = 2),
+    panel.grid.minor = element_line(color = "blue", linewidth = 1),
+    axis.text.x = element_text(angle = 90, size = 16, color = "purple"),
+    axis.text.y = element_text(size = 16, color = "orange"),
+    axis.title = element_text(size = 20, color = "green"),
+    plot.title = element_text(size = 24, color = "red", face = "bold"),
+    plot.subtitle = element_text(size = 16, color = "blue"),
+    strip.background = element_rect(fill = "limegreen"),
+    strip.text = element_text(size = 16, color = "white"),
+    legend.background = element_rect(fill = "cyan"),
+    legend.text = element_text(size = 14, color = "purple")
+  )
+```
+
+
+```{r}
+
+#Part 6 
+chocolate %>%
+  ggplot(aes(
+    x = as.factor(review_date),
+    y = rating,
+  )) +
+  geom_violin(alpha = 0.7, fill = "steelblue") +
+  labs(
+    title = "Chocolate Ratings by Review Year",
+    x = "Review Year",
+    y = "Rating",
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  )
+
+#1 I removed the varying color scale, the different colors didn't add any additional information and were distracting
+#2 I made the color or the plots steel blue and slightly transparent for visual appeal. I
+#3 I added a title, which helps a viewer more easily understand what this graph is showing.
+#4 I added x and y axis labels that had more meaning. 
+#5 I tilted and aligned the year labels along the x axis so it doesn't appear as crowded
+#6 I made the theme minimal to remove the appearance (removed gray background and replaced with white) 
+#7 I also removed the legend as they're all one color now. 
+
+
+
+
+#of note, i ran my analysis and my graphs on my cleaned data (from part 2), while it seems perhaps yours is the raw data, having not removed the 'blends'. 
+
+```
